@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>ZiroTube V2</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="playback-page">
+
+    <header class="playback-header" id="playbackHeader">
+        <button class="back-button" id="backButton" tabindex="0" aria-label="Back to dashboard">
+            <span class="back-arrow">&#8592;</span>
+            <span class="back-label">Back</span>
+        </button>
+        <h2 class="now-playing-title" id="videoTitle">Now Playing</h2>
+        <span class="playback-spacer"></span>
+    </header>
+
+    <main class="player-container" id="playerContainer">
+        <!--
+            No sandbox: hyperwatching player tests popup capability at init and refuses
+            to start when sandboxed. TV/mobile browsers have native popup blockers.
+            referrerpolicy=no-referrer reduces tracking.
+        -->
+        <iframe
+            id="playerFrame"
+            class="player-iframe"
+            src="about:blank"
+            allowfullscreen
+            allow="autoplay; fullscreen; picture-in-picture"
+            referrerpolicy="no-referrer"
+            scrolling="no"
+        ></iframe>
+
+        <div class="video-error" id="videoError" style="display:none;">
+            <div class="error-icon">✕</div>
+            <p>Couldn't load this video.</p>
+            <button class="back-button-secondary" id="errorBackButton">
+                &#8592; Back to Dashboard
+            </button>
+        </div>
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/player.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0c0c14">
+    <title>ZiroTube V2</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <span class="app-logo">Ziro<span class="logo-dot">.</span>Tube</span>
+        <span class="version-tag">V2</span>
+        <span class="header-spacer"></span>
+        <span class="video-count" id="videoCount"></span>
+    </header>
+
+    <main class="dashboard" id="dashboard">
+        <div class="dashboard-grid" id="videoGrid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-icon">⚠</div>
+            <p>No videos available.</p>
+            <p class="empty-sub">Check your internet connection.</p>
+        </div>
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
