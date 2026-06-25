@@ -1,0 +1,170 @@
+[
+  {
+    "id": 1,
+    "title": "Spirited Away - المخطوفة",
+    "video": "https://pegasus.5387692.xyz/api/hls/9728/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/997_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/996_banner_large.webp"
+  },
+  {
+    "id": 2,
+    "title": "Ponyo - بونيو",
+    "video": "https://pegasus.5387692.xyz/api/hls/9730/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/1001_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/1000_banner_large.webp"
+  },
+  {
+    "id": 3,
+    "title": "قبر اليراعات - غيبلي",
+    "video": "https://pegasus.5387692.xyz/api/hls/9732/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/772_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/771_banner.webp"
+  },
+  {
+    "id": 4,
+    "title": "قلعة في السماء - غيبلي",
+    "video": "https://pegasus.5387692.xyz/api/hls/9729/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/748_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/747_banner.webp"
+  },
+  {
+    "id": 5,
+    "title": "Princess Mononoke - الأميرة مونونوكي",
+    "video": "https://pegasus.5387692.xyz/api/hls/9727/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/989_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/988_banner_large.webp"
+  },
+  {
+    "id": 6,
+    "title": "HowlS Moving Castle - قلعة هاول المتحركة",
+    "video": "https://pegasus.5387692.xyz/api/hls/9720/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/993_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/992_banner_large.webp"
+  },
+  {
+    "id": 7,
+    "title": "كيكي لخدمة التوصيل - غيبلي",
+    "video": "https://pegasus.5387692.xyz/api/hls/9721/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/886_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/885_banner.webp"
+  },
+  {
+    "id": 8,
+    "title": "جاري توتورو - غيبلي",
+    "video": "https://pegasus.5387692.xyz/api/hls/9723/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/805_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/804_banner.webp"
+  },
+  {
+    "id": 9,
+    "title": "بيتر بان - والت ديزني",
+    "video": "https://pegasus.5387692.xyz/api/hls/9b6dcc7d-9e40-4c37-9f64-2422e3ef09eb/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/572d7eda-7b23-4eb7-9081-c540f136f619_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/3ddf7ae8-3e5d-4837-bfc6-5f1abd288521_cover.webp"
+  },
+  {
+    "id": 10,
+    "title": "سندريلا - والت ديزني",
+    "video": "https://pegasus.5387692.xyz/api/hls/4548/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/730_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/729_banner.webp"
+  },
+  {
+    "id": 11,
+    "title": "أسطورة آنغ: آخر مسخر هواء (مترجم)",
+    "video": "https://pegasus.5387692.xyz/api/hls/5be2af30-0b17-428d-a0ad-25ed5734d8f2/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/32988f58-229e-4b3a-affc-6ed026fb9e80_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/42b5e5aa-1484-4af0-9342-3288844bfd79_cover.webp"
+  },
+  {
+    "id": 12,
+    "title": "علي بابا والأربعين حرامي -  قصص عالمية",
+    "video": "https://pegasus.5387692.xyz/api/hls/6309/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/710_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/709_banner.webp"
+  },
+  {
+    "id": 13,
+    "title": "صراع الجبابرة  -  الجزء الأول والثاني",
+    "video": "https://pegasus.5387692.xyz/api/hls/6000/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/451_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/450_banner.webp"
+  },
+  {
+    "id": 14,
+    "title": "غرندايزر ومازنجر العملاق وجيتر روبوت ضد وحش البحر العملاق",
+    "video": "https://pegasus.5387692.xyz/api/hls/4245/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/17_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/19_banner.webp"
+  },
+  {
+    "id": 15,
+    "title": "غرندايزر ضد مازنجر العملاق",
+    "video": "https://pegasus.5387692.xyz/api/hls/1702/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/12_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/14_banner.webp"
+  },
+  {
+    "id": 16,
+    "title": "المعركة الكبرى للوحوش الآلية الطائرة",
+    "video": "https://pegasus.5387692.xyz/api/hls/5470/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/6_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/8_banner.webp"
+  },
+  {
+    "id": 17,
+    "title": "ذئب الجبل الأبيض",
+    "video": "https://pegasus.5387692.xyz/api/hls/2350/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/152_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/154_banner.webp"
+  },
+  {
+    "id": 18,
+    "title": "فيلم المحقق كونان 05 - العد التنازلي نحو المجهول",
+    "video": "https://pegasus.5387692.xyz/api/hls/8822/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/757_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/756_banner.webp"
+  },
+  {
+    "id": 19,
+    "title": "فيلم المحقق كونان 02 - الهدف الرابع عشر",
+    "video": "https://pegasus.5387692.xyz/api/hls/1308/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/702_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/701_banner.webp"
+  },
+  {
+    "id": 20,
+    "title": "فيلم المحقق كونان 01 - العد التنازلي لناطحة السحاب",
+    "video": "https://pegasus.5387692.xyz/api/hls/784/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/584_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/583_banner.webp"
+  },
+  {
+    "id": 21,
+    "title": "المحقق كونان 27 : شعار المليون دولار",
+    "video": "https://pegasus.5387692.xyz/api/hls/8660/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/898_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/897_banner.webp"
+  },
+  {
+    "id": 22,
+    "title": "فيلم المحقق كونان 15 - 15 دقيقة من الصمت",
+    "video": "https://pegasus.5387692.xyz/api/hls/13797/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/5915d862-1664-4b2f-9adf-3ae1c504d159_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/be37bd9b-1fc4-47c4-8289-3fc5970cf4a4_cover.webp"
+  },
+  {
+    "id": 23,
+    "title": "فيلم المحقق كونان 14 - السفينة الضائعة في السماء",
+    "video": "https://pegasus.5387692.xyz/api/hls/13796/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/0f41a01e-595f-4d5a-bbd1-a7aa76bc95a5_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/786719a5-205b-47d2-b859-1ba5ff589e7e_cover.webp"
+  },
+  {
+    "id": 24,
+    "title": "فيلم المحقق كونان 16 - المهاجم الحادي عشر",
+    "video": "https://pegasus.5387692.xyz/api/hls/13798/playlist.m3u8?cache=bypass",
+    "poster": "https://cartoony.net/assets/img/posters/c0667efc-28ec-49b8-9bd8-7265a76fc97c_cover.webp",
+    "banner": "https://cartoony.net/assets/img/posters/5fb8f5b3-8a25-4353-ae11-814741a7ba44_cover.webp"
+  }
+]

@@ -1,34 +1,27 @@
 'use strict';
 (function () {
-    var CATALOG_URL = 'https://gist.githubusercontent.com/ziroo-cf/6de94825d21c9401f27ffeb4677feb9e/raw/videos_V2.json';
-
     var videoGrid  = document.getElementById('videoGrid');
     var emptyState = document.getElementById('emptyState');
     var videoCount = document.getElementById('videoCount');
     var dashboard  = document.getElementById('dashboard');
-
-    // Max stagger delay index — caps so 30th card doesn't wait 1.2s
+    var loadingIndicator = document.getElementById('loadingIndicator');
     var MAX_STAGGER = 14;
+    var PAGE_SIZE = 20;
+    var allVideos = [];
+    var renderedCount = 0;
+    var nav = null;
 
-    // ==================== LOAD CATALOG ====================
-    function loadCatalog(callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', CATALOG_URL, true);
-        xhr.timeout = 10000;
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try { callback(null, JSON.parse(xhr.responseText)); }
-                    catch (e) { callback('Invalid JSON', null); }
-                } else { callback('HTTP error ' + xhr.status, null); }
-            }
-        };
-        xhr.onerror   = function () { callback('Network error', null); };
-        xhr.ontimeout = function () { callback('Timeout', null); };
-        xhr.send();
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(reg) {
+                console.log('Service Worker registered');
+            })
+            .catch(function(err) {
+                console.warn('SW registration failed:', err);
+            });
     }
 
-    // ==================== BUILD CARD ====================
     function createVideoCard(video, index) {
         var card = document.createElement('div');
         card.className = 'video-card';
@@ -37,17 +30,14 @@
         card.setAttribute('data-nav-focusable', 'true');
         card.setAttribute('data-video-id', video.id);
         card.setAttribute('aria-label', video.title + (video.duration ? ', ' + video.duration : ''));
-
-        // Staggered entrance: delay each card a little
         var delay = Math.min(index, MAX_STAGGER) * 40;
         card.style.setProperty('--delay', delay);
 
-        // --- Thumbnail ---
         var thumb = document.createElement('div');
         thumb.className = 'card-thumbnail';
 
         var img = document.createElement('img');
-        img.src = video.thumbnailUrl;
+        img.src = video.poster || '';
         img.alt = '';
         img.loading = 'lazy';
         img.decoding = 'async';
@@ -62,7 +52,6 @@
             fallback.style.display = 'flex';
         };
 
-        // Play button overlay (pure CSS, this div is the anchor)
         var playOverlay = document.createElement('div');
         playOverlay.className = 'card-play';
         playOverlay.setAttribute('aria-hidden', 'true');
@@ -76,7 +65,6 @@
         thumb.appendChild(playOverlay);
         if (video.duration) thumb.appendChild(badge);
 
-        // --- Body ---
         var body = document.createElement('div');
         body.className = 'card-body';
 
@@ -88,12 +76,10 @@
         card.appendChild(thumb);
         card.appendChild(body);
 
-        // --- Click / Touch ---
         card.addEventListener('click', function () {
             goToVideo(card);
         });
 
-        // Touch active state for visual feedback
         card.addEventListener('touchstart', function () {
             card.classList.add('touch-active');
         }, { passive: true });
@@ -109,64 +95,85 @@
         return card;
     }
 
-    // ==================== NAVIGATION ====================
     function goToVideo(element) {
         var id = element.getAttribute('data-video-id');
         if (id) window.location.href = 'play.html?id=' + encodeURIComponent(id);
     }
 
     function onCardFocus(element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (!element) return;
+        requestAnimationFrame(function() {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center'
+            });
+        });
+        var idx = nav ? nav.getCurrentIndex() : -1;
+        if (idx >= 0 && renderedCount < allVideos.length && idx >= renderedCount - 3) {
+            loadMoreCards();
+        }
     }
 
-    // ==================== RENDER ====================
-    function renderCards(videos) {
-        while (videoGrid.firstChild) videoGrid.removeChild(videoGrid.firstChild);
-
-        if (!videos || !videos.length) {
-            emptyState.style.display = 'flex';
-            return;
+    function renderCards(start, count) {
+        var end = Math.min(start + count, allVideos.length);
+        var fragment = document.createDocumentFragment();
+        for (var i = start; i < end; i++) {
+            fragment.appendChild(createVideoCard(allVideos[i], i));
         }
-
-        emptyState.style.display = 'none';
+        videoGrid.appendChild(fragment);
+        renderedCount = end;
 
         if (videoCount) {
-            videoCount.textContent = videos.length + ' videos';
+            videoCount.textContent = allVideos.length + ' videos';
         }
-
-        for (var i = 0; i < videos.length; i++) {
-            videoGrid.appendChild(createVideoCard(videos[i], i));
+        if (nav) {
+            nav.refresh();
         }
     }
 
-    // ==================== INIT ====================
+    function loadMoreCards() {
+        if (renderedCount >= allVideos.length) return;
+        var nextStart = renderedCount;
+        var toLoad = Math.min(PAGE_SIZE, allVideos.length - nextStart);
+        renderCards(nextStart, toLoad);
+    }
+
     function initDashboard() {
+        // Show loading indicator, hide empty state
+        loadingIndicator.style.display = 'flex';
+        emptyState.style.display = 'none';
+
         loadCatalog(function (err, videos) {
+            // Hide loading indicator
+            loadingIndicator.style.display = 'none';
+
             if (err || !videos) {
-                while (videoGrid.firstChild) videoGrid.removeChild(videoGrid.firstChild);
                 emptyState.style.display = 'flex';
                 return;
             }
 
-            renderCards(videos);
+            emptyState.style.display = 'none';
+            allVideos = videos;
+            renderedCount = 0;
 
-            var nav = new SpatialNavigation({
+            // Render first page
+            renderCards(0, PAGE_SIZE);
+
+            nav = new SpatialNavigation({
                 focusableSelector: '[data-nav-focusable]',
                 activeClass: 'nav-focused',
                 container: dashboard,
                 autoFocusFirst: true,
                 onSelect: goToVideo,
                 onFocus: onCardFocus,
-                onBack: function () { /* no-op on dashboard */ }
+                onBack: function () { }
             });
-
             nav.init();
             window._nav = nav;
 
-            // Refresh after images paint (layout may shift)
             setTimeout(function () { nav.refresh(); }, 300);
             setTimeout(function () { nav.refresh(); }, 800);
-
             var resizeTimer;
             window.addEventListener('resize', function () {
                 clearTimeout(resizeTimer);
