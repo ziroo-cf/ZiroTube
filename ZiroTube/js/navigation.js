@@ -12,10 +12,14 @@ function SpatialNavigation(options) {
     this.currentIndex   = -1;
     this.currentElement = null;
     this.isInitialized  = false;
-    this.repeatDelay    = 300;   // مللي ثانية قبل بدء التكرار
-    this.repeatInterval = 80;    // مللي ثانية بين كل حركة عند التكرار
+    
+    // [تحسين التلفاز] تأخير ووتيرة مريحة للتكرار
+    this.repeatDelay    = 350;   // مللي ثانية قبل بدء التكرار
+    this.repeatInterval = 90;    // مللي ثانية بين كل حركة
+    
     this._repeatTimer   = null;
     this._repeatIntervalId = null;
+    this._isNavigating = false; // قفل لمنع التنفيذ المتزامن
 
     this.KEY = {
         LEFT:         37,
@@ -78,7 +82,7 @@ SpatialNavigation.prototype.focusIndex = function (index, silent) {
     this.currentIndex   = index;
     this.currentElement = this.elements[index];
     this._addClass(this.currentElement, this.activeClass);
-    // استخدام requestAnimationFrame لتحسين الأداء
+    var self = this;
     requestAnimationFrame(function() {
         try { self.currentElement.focus(); } catch (e) { }
     });
@@ -94,17 +98,17 @@ SpatialNavigation.prototype._handleKeyDown = function (event) {
     var k = event.keyCode || event.which;
     var handled = false;
 
-    // الاتجاهات الأساسية
     switch (k) {
         case this.KEY.LEFT:
         case this.KEY.UP:
         case this.KEY.RIGHT:
         case this.KEY.DOWN:
+            // منع التكرار السريع جداً
+            if (this._isNavigating) return false;
             handled = this._navigateDirectionFromKey(k);
             if (handled) {
                 event.preventDefault();
                 event.stopPropagation();
-                // بدء التكرار التلقائي
                 this._startRepeat(k);
                 return false;
             }
@@ -142,9 +146,9 @@ SpatialNavigation.prototype._handleKeyDown = function (event) {
 
 SpatialNavigation.prototype._handleKeyUp = function (event) {
     var k = event.keyCode || event.which;
-    // إيقاف التكرار عند رفع أي مفتاح اتجاه
     if (k === this.KEY.LEFT || k === this.KEY.UP || k === this.KEY.RIGHT || k === this.KEY.DOWN) {
         this._stopRepeat();
+        this._isNavigating = false;
     }
 };
 
@@ -153,10 +157,11 @@ SpatialNavigation.prototype._startRepeat = function (keyCode) {
     if (this._repeatTimer) clearTimeout(this._repeatTimer);
     if (this._repeatIntervalId) clearInterval(this._repeatIntervalId);
 
-    // تأخير قصير قبل بدء التكرار لتجنب القفز السريع
     this._repeatTimer = setTimeout(function() {
         self._repeatIntervalId = setInterval(function() {
-            self._navigateDirectionFromKey(keyCode);
+            if (!self._isNavigating) {
+                self._navigateDirectionFromKey(keyCode);
+            }
         }, self.repeatInterval);
     }, self.repeatDelay);
 };
@@ -186,13 +191,21 @@ SpatialNavigation.prototype._navigateDirectionFromKey = function (keyCode) {
 
 SpatialNavigation.prototype._navigateDirection = function (direction) {
     if (!this.currentElement || this.elements.length < 2) return false;
+    if (this._isNavigating) return false;
+    
+    this._isNavigating = true;
     var best = this._findBestCandidate(this.currentElement, direction);
-    if (!best) return false;
+    if (!best) {
+        this._isNavigating = false;
+        return false;
+    }
     var idx = this.elements.indexOf(best);
     if (idx >= 0 && idx !== this.currentIndex) {
         this.focusIndex(idx, false);
+        this._isNavigating = false;
         return true;
     }
+    this._isNavigating = false;
     return false;
 };
 
@@ -238,15 +251,13 @@ SpatialNavigation.prototype._findBestCandidate = function (source, direction) {
             default: continue;
         }
 
-        // تحسين التقييم: إعطاء وزن للتوافق الأفقي/العمودي
-        var score = primary + secondary * 0.3; // تقليل وزن الثانوي لتفضيل المحاذاة
-
-        // زيادة الوزن إذا كان العنصر في نفس الصف/العمود تقريباً
-        var threshold = 20;
+        // [تحسين خوارزمية التلفاز] تقليل وزن الثانوي + مكافأة التوافق
+        var score = primary + secondary * 0.25;
+        var threshold = 25;
         if (direction === 'left' || direction === 'right') {
-            if (Math.abs(scy - cy) < threshold) score *= 0.8;
+            if (Math.abs(scy - cy) < threshold) score *= 0.7;
         } else {
-            if (Math.abs(scx - cx) < threshold) score *= 0.8;
+            if (Math.abs(scx - cx) < threshold) score *= 0.7;
         }
 
         if (score < bestScore) {

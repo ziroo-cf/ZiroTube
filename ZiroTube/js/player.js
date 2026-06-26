@@ -6,19 +6,78 @@
     var errorBackButton = document.getElementById('errorBackButton');
     var player = null;
 
-    // ✅ Debounce helper
-    function debounce(func, wait) {
-        var timeout;
-        return function() {
-            var args = arguments;
-            var context = this;
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                func.apply(context, args);
-            }, wait);
-        };
+    // ---- إدارة الضغط المطول يدوياً ----
+    var repeatTimers = {
+        seek: null,
+        seekInterval: null,
+        volume: null,
+        volumeInterval: null
+    };
+
+    // دالة مساعدة لتحديث الوقت وإجبار واجهة المستخدم على التحديث
+    function setPlayerTime(seconds) {
+        if (!player) return;
+        var duration = player.duration();
+        if (!duration || isNaN(duration)) return;
+        var clamped = Math.max(0, Math.min(duration, seconds));
+        player.currentTime(clamped);
+        // إجبار شريط التقدم على التحديث فوراً
+        player.trigger('timeupdate');
     }
 
+    function setPlayerVolume(value) {
+        if (!player) return;
+        var clamped = Math.max(0, Math.min(1, value));
+        player.volume(clamped);
+        // تحديث واجهة الصوت (اختياري)
+        player.trigger('volumechange');
+    }
+
+    function startRepeat(action, step, delay, interval) {
+        stopRepeat(action);
+        // التأخير الأولي ثم التكرار
+        var timer = setTimeout(function() {
+            // التنفيذ الأول بعد التأخير
+            if (action === 'seek') {
+                var current = player ? player.currentTime() : 0;
+                setPlayerTime(current + step);
+            } else if (action === 'volume') {
+                var currentVol = player ? player.volume() : 0.5;
+                setPlayerVolume(currentVol + step);
+            }
+            // بدء التكرار السريع
+            var intervalId = setInterval(function() {
+                if (action === 'seek') {
+                    var current = player ? player.currentTime() : 0;
+                    setPlayerTime(current + step);
+                } else if (action === 'volume') {
+                    var currentVol = player ? player.volume() : 0.5;
+                    setPlayerVolume(currentVol + step);
+                }
+            }, interval);
+            if (action === 'seek') repeatTimers.seekInterval = intervalId;
+            else if (action === 'volume') repeatTimers.volumeInterval = intervalId;
+        }, delay);
+        if (action === 'seek') repeatTimers.seek = timer;
+        else if (action === 'volume') repeatTimers.volume = timer;
+    }
+
+    function stopRepeat(action) {
+        if (action === 'seek') {
+            if (repeatTimers.seek) { clearTimeout(repeatTimers.seek); repeatTimers.seek = null; }
+            if (repeatTimers.seekInterval) { clearInterval(repeatTimers.seekInterval); repeatTimers.seekInterval = null; }
+        } else if (action === 'volume') {
+            if (repeatTimers.volume) { clearTimeout(repeatTimers.volume); repeatTimers.volume = null; }
+            if (repeatTimers.volumeInterval) { clearInterval(repeatTimers.volumeInterval); repeatTimers.volumeInterval = null; }
+        }
+    }
+
+    function stopAllRepeats() {
+        stopRepeat('seek');
+        stopRepeat('volume');
+    }
+
+    // ---- دوال مساعدة ----
     function getQueryParam(name) {
         var s = window.location.search;
         if (!s) return null;
@@ -115,50 +174,25 @@
     }
 
     function goBack() {
-        // ✅ Dispose player and clean up
         if (player) {
             player.dispose();
             player = null;
         }
-        // Remove all event listeners to avoid memory leaks
+        stopAllRepeats();
         window.removeEventListener('beforeunload', cleanupOnUnload);
         window.location.href = 'index.html';
     }
 
-    // ✅ Cleanup function for page unload (e.g., browser back)
     function cleanupOnUnload() {
         if (player) {
             player.dispose();
             player = null;
         }
+        stopAllRepeats();
     }
     window.addEventListener('beforeunload', cleanupOnUnload);
 
-    // ✅ Debounced versions of player actions
-    var debouncedSeek = debounce(function(amount) {
-        if (player) {
-            var newTime = Math.max(0, Math.min(player.duration(), player.currentTime() + amount));
-            player.currentTime(newTime);
-        }
-    }, 200); // 200ms debounce
-
-    var debouncedVolume = debounce(function(step) {
-        if (player) {
-            var newVol = Math.max(0, Math.min(1, player.volume() + step));
-            player.volume(newVol);
-        }
-    }, 100); // 100ms debounce
-
-    var debouncedPlayToggle = debounce(function() {
-        if (player) {
-            if (player.paused()) {
-                player.play();
-            } else {
-                player.pause();
-            }
-        }
-    }, 300); // 300ms debounce to avoid accidental double-tap
-
+    // ---- معالج الأزرار مع الضغط المطول ----
     function initPlaybackPage() {
         var videoId = getQueryParam('id');
 
@@ -175,44 +209,69 @@
                 });
             }
 
+            // أحداث لوحة المفاتيح
             document.addEventListener('keydown', function (e) {
                 var k = e.keyCode || e.which;
                 var handled = false;
 
-                // Back keys – immediate
+                // الرجوع
                 if (k === 8 || k === 27 || k === 10009 || k === 461 || k === 4) {
                     handled = true;
                     goBack();
                 }
 
-                // Enter – debounced
+                // Enter (تشغيل/إيقاف)
                 if (k === 13) {
                     if (document.activeElement === errorBackButton) {
                         handled = true;
                         goBack();
                     } else {
-                        debouncedPlayToggle();
+                        if (player) {
+                            if (player.paused()) player.play();
+                            else player.pause();
+                        }
                         handled = true;
                     }
                 }
 
-                // Left/Right – debounced seek
+                // اليمين/اليسار (تقديم/ترجيع) – مع الضغط المطول
                 if (k === 37 || k === 39) {
-                    var seekAmount = (k === 37) ? -10 : 10;
-                    debouncedSeek(seekAmount);
+                    var step = (k === 37) ? -10 : 10;
+                    // تنفيذ فوري للقفزة الأولى
+                    if (player) {
+                        var current = player.currentTime();
+                        setPlayerTime(current + step);
+                    }
+                    // بدء التكرار عند الاستمرار
+                    startRepeat('seek', step, 350, 120);
                     handled = true;
                 }
 
-                // Up/Down – debounced volume
+                // الأعلى/الأسفل (رفع/خفض الصوت) – مع الضغط المطول
                 if (k === 38 || k === 40) {
                     var volStep = (k === 38) ? 0.1 : -0.1;
-                    debouncedVolume(volStep);
+                    if (player) {
+                        var currentVol = player.volume();
+                        setPlayerVolume(currentVol + volStep);
+                    }
+                    startRepeat('volume', volStep, 350, 120);
                     handled = true;
                 }
 
                 if (handled) {
                     e.preventDefault();
                     e.stopPropagation();
+                }
+            });
+
+            // إيقاف التكرار عند رفع المفتاح
+            document.addEventListener('keyup', function (e) {
+                var k = e.keyCode || e.which;
+                if (k === 37 || k === 39) {
+                    stopRepeat('seek');
+                }
+                if (k === 38 || k === 40) {
+                    stopRepeat('volume');
                 }
             });
         });

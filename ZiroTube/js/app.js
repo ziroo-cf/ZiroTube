@@ -11,6 +11,21 @@
     var renderedCount = 0;
     var nav = null;
 
+    // [تحسين الماوس/اللمس] كشف إن كان المستخدم يستخدم فأرة أو لمس
+    var isTouchOrMouse = false;
+    function detectInputType() {
+        // عند تحريك الفأرة أو اللمس نعتبر أن الجهاز ليس تلفازاً
+        document.addEventListener('mousemove', function onMove() {
+            isTouchOrMouse = true;
+            document.removeEventListener('mousemove', onMove);
+        }, { passive: true });
+        document.addEventListener('touchstart', function onTouch() {
+            isTouchOrMouse = true;
+            document.removeEventListener('touchstart', onTouch);
+        }, { passive: true });
+    }
+    detectInputType();
+
     // Register Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
@@ -140,12 +155,10 @@
     }
 
     function initDashboard() {
-        // Show loading indicator, hide empty state
         loadingIndicator.style.display = 'flex';
         emptyState.style.display = 'none';
 
         loadCatalog(function (err, videos) {
-            // Hide loading indicator
             loadingIndicator.style.display = 'none';
 
             if (err || !videos) {
@@ -157,14 +170,15 @@
             allVideos = videos;
             renderedCount = 0;
 
-            // Render first page
             renderCards(0, PAGE_SIZE);
 
+            // [تحسين الماوس/اللمس] لا نفعّل التركيز التلقائي إذا كان المستخدم يستخدم فأرة/لمس
+            var autoFocus = !isTouchOrMouse;
             nav = new SpatialNavigation({
                 focusableSelector: '[data-nav-focusable]',
                 activeClass: 'nav-focused',
                 container: dashboard,
-                autoFocusFirst: true,
+                autoFocusFirst: autoFocus,
                 onSelect: goToVideo,
                 onFocus: onCardFocus,
                 onBack: function () { }
