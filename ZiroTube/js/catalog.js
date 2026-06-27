@@ -1,19 +1,47 @@
 'use strict';
-var CATALOG_URL = 'https://gist.githubusercontent.com/ziroo-cf/4da23f447ca0055bcac82c70afdf7dc1/raw/zirotube_kids_films.json';
 
-function loadCatalog(callback) {
+/* ──────────────────────────────────────────────────────────────
+   CATALOG_URLS – one raw JSON endpoint per content category.
+   Replace placeholder entries with real Gist URLs as created.
+   ────────────────────────────────────────────────────────────── */
+var CATALOG_URLS = {
+    lives:       'https://gist.githubusercontent.com/ziroo-cf/5ba3e14fe665aa61f0ece9d945c6f98c/raw/zirotube_lives.json',
+    kids_films:  'https://gist.githubusercontent.com/ziroo-cf/4da23f447ca0055bcac82c70afdf7dc1/raw/zirotube_kids_films.json',
+    kids_series: 'https://gist.githubusercontent.com/ziroo-cf/4da23f447ca0055bcac82c70afdf7dc1/raw/zirotube_kids_series.json',
+    films:       'https://gist.githubusercontent.com/ziroo-cf/4da23f447ca0055bcac82c70afdf7dc1/raw/zirotube_films.json'
+};
+
+/**
+ * loadCatalog(categoryKey, callback)
+ *
+ * Fetches the JSON catalog for the given category key via XHR.
+ *
+ * @param {string}   categoryKey  – one of: 'lives' | 'kids_films' | 'kids_series' | 'films'
+ * @param {function} callback     – called as callback(errorString|null, videosArray|null)
+ */
+function loadCatalog(categoryKey, callback) {
+    var url = CATALOG_URLS[categoryKey];
+    if (!url) {
+        callback('Unknown category: ' + categoryKey, null);
+        return;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', CATALOG_URL, true);
+    xhr.open('GET', url, true);
     xhr.timeout = 10000;
+
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 try { callback(null, JSON.parse(xhr.responseText)); }
                 catch (e) { callback('Invalid JSON', null); }
-            } else { callback('HTTP error ' + xhr.status, null); }
+            } else {
+                callback('HTTP error ' + xhr.status, null);
+            }
         }
     };
-    xhr.onerror = function () { callback('Network error', null); };
+
+    xhr.onerror   = function () { callback('Network error', null); };
     xhr.ontimeout = function () { callback('Timeout', null); };
     xhr.send();
 }

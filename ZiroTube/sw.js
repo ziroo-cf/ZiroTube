@@ -1,5 +1,5 @@
 // sw.js – Cache all static assets for offline/instant loading
-const CACHE_NAME = 'zirotube-v1.1';
+const CACHE_NAME = 'zirotube-v1.2';
 const ASSETS = [
     '/',
     '/index.html',

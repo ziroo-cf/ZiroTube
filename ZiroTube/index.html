@@ -5,30 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#0c0c14" />
+    <meta name="theme-color" content="#060A08" />
     <title>ZiroTube</title>
     <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-    <header class="app-header">
-        <span class="app-logo">Ziro<span class="logo-dot">Tube</span></span>
-        <span class="header-spacer"></span>
-        <span class="video-count" id="videoCount"></span>
-    </header>
 
-    <main class="dashboard" id="dashboard">
-        <div class="dashboard-grid" id="videoGrid">
-            <div class="loading-indicator" id="loadingIndicator">
-                <div class="spinner"></div>
-                <p>Loading videos…</p>
+    <div class="app-layout">
+
+        <!-- ═══════════════════════════════════════
+             LEFT RAIL — collapsed: 90 px (icon only)
+                         expanded: 260 px (icon + label)
+             ═══════════════════════════════════════ -->
+        <aside class="left-rail" id="leftRail" aria-label="Main Navigation">
+
+            <!-- Logo -->
+            <div class="rail-logo" aria-hidden="true">
+                Ziro<span class="logo-dot">Tube</span>
             </div>
+
+            <!-- Category Nav -->
+            <nav class="category-menu" id="categoryMenu" aria-label="Content Categories">
+
+                <!-- Live TV -->
+                <button type="button"
+                        class="category-btn active"
+                        data-nav-focusable="true"
+                        data-category="lives"
+                        aria-label="Live TV">
+                    <span class="btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <line x1="8"  y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                    </span>
+                    <span class="btn-label">Live TV</span>
+                </button>
+
+                <!-- Kids Films -->
+                <button type="button"
+                        class="category-btn"
+                        data-nav-focusable="true"
+                        data-category="kids_films"
+                        aria-label="Kids Films">
+                    <span class="btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    </span>
+                    <span class="btn-label">Kids Films</span>
+                </button>
+
+                <!-- Kids Series -->
+                <button type="button"
+                        class="category-btn"
+                        data-nav-focusable="true"
+                        data-category="kids_series"
+                        aria-label="Kids Series">
+                    <span class="btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2"/>
+                        </svg>
+                    </span>
+                    <span class="btn-label">Kids Series</span>
+                </button>
+
+                <!-- Films -->
+                <button type="button"
+                        class="category-btn"
+                        data-nav-focusable="true"
+                        data-category="films"
+                        aria-label="Films">
+                    <span class="btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polygon points="10 8 16 12 10 16 10 8"/>
+                        </svg>
+                    </span>
+                    <span class="btn-label">Films</span>
+                </button>
+
+            </nav>
+
+            <!-- Footer: video count + version -->
+            <div class="rail-footer">
+                <span class="video-count" id="videoCount"></span>
+                <span class="rail-version">v2.0</span>
+            </div>
+
+        </aside>
+
+        <!-- ═══════════════════════════════════════
+             CONTENT AREA — scrollable video grid
+             ═══════════════════════════════════════ -->
+        <div class="content-area" id="contentArea">
+            <main class="dashboard" id="dashboard">
+
+                <div class="dashboard-grid" id="videoGrid">
+                    <div class="loading-indicator" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <p>Loading videos…</p>
+                    </div>
+                </div>
+
+                <div class="empty-state" id="emptyState" style="display:none;">
+                    <div class="empty-icon">⚠</div>
+                    <p>No videos available.</p>
+                    <p class="empty-sub">Check your internet connection.</p>
+                </div>
+
+            </main>
         </div>
-        <div class="empty-state" id="emptyState" style="display:none;">
-            <div class="empty-icon">⚠</div>
-            <p>No videos available.</p>
-            <p class="empty-sub">Check your internet connection.</p>
-        </div>
-    </main>
+
+    </div><!-- /.app-layout -->
 
     <script src="js/catalog.js"></script>
     <script src="js/navigation.js"></script>
