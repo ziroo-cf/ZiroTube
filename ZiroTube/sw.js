@@ -1,6 +1,5 @@
-// sw.js – Cache all static assets for offline/instant loading
-const CACHE_NAME = 'zirotube-v1.2';
-const ASSETS = [
+var CACHE_NAME = 'zirotube-v3.1';
+var ASSETS = [
     '/',
     '/index.html',
     '/play.html',
@@ -8,32 +7,39 @@ const ASSETS = [
     '/js/app.js',
     '/js/catalog.js',
     '/js/navigation.js',
-    '/js/player.js',
-    // Add any static images used (e.g., logo, icons) if needed
+    '/js/player.js'
 ];
 
-self.addEventListener('install', event => {
+self.addEventListener('install', function (event) {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(ASSETS))
-            .then(() => self.skipWaiting())
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.addAll(ASSETS);
+        }).then(function () {
+            return self.skipWaiting();
+        })
     );
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', function (event) {
     event.waitUntil(
-        caches.keys().then(keys => {
+        caches.keys().then(function (keys) {
             return Promise.all(
-                keys.filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
+                keys.filter(function (key) {
+                    return key !== CACHE_NAME;
+                }).map(function (key) {
+                    return caches.delete(key);
+                })
             );
-        }).then(() => self.clients.claim())
+        }).then(function () {
+            return self.clients.claim();
+        })
     );
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', function (event) {
     event.respondWith(
-        caches.match(event.request)
-            .then(response => response || fetch(event.request))
+        caches.match(event.request).then(function (response) {
+            return response || fetch(event.request);
+        })
     );
 });

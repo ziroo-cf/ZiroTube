@@ -2,43 +2,39 @@
 function SpatialNavigation(options) {
     var opts = options || {};
     this.focusableSelector = opts.focusableSelector || '[data-nav-focusable]';
-    this.activeClass       = opts.activeClass || 'nav-focused';
-    this.container         = opts.container || document;
-    this.onSelectCallback  = opts.onSelect || null;
-    this.onFocusCallback   = opts.onFocus  || null;
-    this.onBackCallback    = opts.onBack   || null;
-    this.autoFocusFirst    = (opts.autoFocusFirst !== false);
-    this.elements       = [];
-    this.currentIndex   = -1;
+    this.activeClass = opts.activeClass || 'nav-focused';
+    this.container = opts.container || document;
+    this.onSelectCallback = opts.onSelect || null;
+    this.onFocusCallback = opts.onFocus || null;
+    this.onBackCallback = opts.onBack || null;
+    this.autoFocusFirst = (opts.autoFocusFirst !== false);
+    this.elements = [];
+    this.currentIndex = -1;
     this.currentElement = null;
-    this.isInitialized  = false;
-    
-    // [تحسين التلفاز] تأخير ووتيرة مريحة للتكرار
-    this.repeatDelay    = 350;   // مللي ثانية قبل بدء التكرار
-    this.repeatInterval = 90;    // مللي ثانية بين كل حركة
-    
-    this._repeatTimer   = null;
+    this.isInitialized = false;
+    this.repeatDelay = 350;
+    this.repeatInterval = 90;
+    this._repeatTimer = null;
     this._repeatIntervalId = null;
-    this._isNavigating = false; // قفل لمنع التنفيذ المتزامن
-
+    this._isNavigating = false;
     this.KEY = {
-        LEFT:         37,
-        UP:           38,
-        RIGHT:        39,
-        DOWN:         40,
-        ENTER:        13,
-        BACK:         8,
-        ESC:          27,
-        PAGE_UP:      33,
-        PAGE_DOWN:    34,
-        HOME:         36,
-        END:          35,
-        BACK_TIZEN:   10009,
-        BACK_WEBOS:   461,
+        LEFT: 37,
+        UP: 38,
+        RIGHT: 39,
+        DOWN: 40,
+        ENTER: 13,
+        BACK: 8,
+        ESC: 27,
+        PAGE_UP: 33,
+        PAGE_DOWN: 34,
+        HOME: 36,
+        END: 35,
+        BACK_TIZEN: 10009,
+        BACK_WEBOS: 461,
         BACK_ANDROID: 4
     };
     this._keydownHandler = null;
-    this._keyupHandler   = null;
+    this._keyupHandler = null;
 }
 
 SpatialNavigation.prototype.init = function () {
@@ -48,17 +44,21 @@ SpatialNavigation.prototype.init = function () {
     if (this.autoFocusFirst && this.elements.length > 0) {
         this.focusIndex(0, true);
     }
-    this._keydownHandler = function (e) { self._handleKeyDown(e); };
-    this._keyupHandler   = function (e) { self._handleKeyUp(e); };
+    this._keydownHandler = function (e) {
+        self._handleKeyDown(e);
+    };
+    this._keyupHandler = function (e) {
+        self._handleKeyUp(e);
+    };
     document.addEventListener('keydown', this._keydownHandler, false);
     document.addEventListener('keyup', this._keyupHandler, false);
     this.isInitialized = true;
 };
 
 SpatialNavigation.prototype._refreshElements = function () {
-    var nodeList = (typeof this.container.querySelectorAll === 'function')
-        ? this.container.querySelectorAll(this.focusableSelector)
-        : document.querySelectorAll(this.focusableSelector);
+    var nodeList = (typeof this.container.querySelectorAll === 'function') ?
+        this.container.querySelectorAll(this.focusableSelector) :
+        document.querySelectorAll(this.focusableSelector);
     this.elements = [];
     for (var i = 0; i < nodeList.length; i++) {
         this.elements.push(nodeList[i]);
@@ -79,31 +79,35 @@ SpatialNavigation.prototype.refresh = function () {
 SpatialNavigation.prototype.focusIndex = function (index, silent) {
     if (index < 0 || index >= this.elements.length) return;
     if (this.currentElement) this._removeClass(this.currentElement, this.activeClass);
-    this.currentIndex   = index;
+    this.currentIndex = index;
     this.currentElement = this.elements[index];
     this._addClass(this.currentElement, this.activeClass);
     var self = this;
-    requestAnimationFrame(function() {
-        try { self.currentElement.focus(); } catch (e) { }
+    requestAnimationFrame(function () {
+        try {
+            self.currentElement.focus();
+        } catch (e) {}
     });
     if (!silent && typeof this.onFocusCallback === 'function') {
         this.onFocusCallback(this.currentElement, this.currentIndex);
     }
 };
 
-SpatialNavigation.prototype.getCurrentElement = function () { return this.currentElement; };
-SpatialNavigation.prototype.getCurrentIndex   = function () { return this.currentIndex; };
+SpatialNavigation.prototype.getCurrentElement = function () {
+    return this.currentElement;
+};
+SpatialNavigation.prototype.getCurrentIndex = function () {
+    return this.currentIndex;
+};
 
 SpatialNavigation.prototype._handleKeyDown = function (event) {
     var k = event.keyCode || event.which;
     var handled = false;
-
     switch (k) {
         case this.KEY.LEFT:
         case this.KEY.UP:
         case this.KEY.RIGHT:
         case this.KEY.DOWN:
-            // منع التكرار السريع جداً
             if (this._isNavigating) return false;
             handled = this._navigateDirectionFromKey(k);
             if (handled) {
@@ -136,7 +140,6 @@ SpatialNavigation.prototype._handleKeyDown = function (event) {
         default:
             break;
     }
-
     if (handled) {
         event.preventDefault();
         event.stopPropagation();
@@ -156,9 +159,8 @@ SpatialNavigation.prototype._startRepeat = function (keyCode) {
     var self = this;
     if (this._repeatTimer) clearTimeout(this._repeatTimer);
     if (this._repeatIntervalId) clearInterval(this._repeatIntervalId);
-
-    this._repeatTimer = setTimeout(function() {
-        self._repeatIntervalId = setInterval(function() {
+    this._repeatTimer = setTimeout(function () {
+        self._repeatIntervalId = setInterval(function () {
             if (!self._isNavigating) {
                 self._navigateDirectionFromKey(keyCode);
             }
@@ -180,11 +182,20 @@ SpatialNavigation.prototype._stopRepeat = function () {
 SpatialNavigation.prototype._navigateDirectionFromKey = function (keyCode) {
     var direction;
     switch (keyCode) {
-        case this.KEY.LEFT:  direction = 'left'; break;
-        case this.KEY.UP:    direction = 'up'; break;
-        case this.KEY.RIGHT: direction = 'right'; break;
-        case this.KEY.DOWN:  direction = 'down'; break;
-        default: return false;
+        case this.KEY.LEFT:
+            direction = 'left';
+            break;
+        case this.KEY.UP:
+            direction = 'up';
+            break;
+        case this.KEY.RIGHT:
+            direction = 'right';
+            break;
+        case this.KEY.DOWN:
+            direction = 'down';
+            break;
+        default:
+            return false;
     }
     return this._navigateDirection(direction);
 };
@@ -192,7 +203,6 @@ SpatialNavigation.prototype._navigateDirectionFromKey = function (keyCode) {
 SpatialNavigation.prototype._navigateDirection = function (direction) {
     if (!this.currentElement || this.elements.length < 2) return false;
     if (this._isNavigating) return false;
-    
     this._isNavigating = true;
     var best = this._findBestCandidate(this.currentElement, direction);
     if (!best) {
@@ -210,23 +220,22 @@ SpatialNavigation.prototype._navigateDirection = function (direction) {
 };
 
 SpatialNavigation.prototype._findBestCandidate = function (source, direction) {
-    var sr  = source.getBoundingClientRect();
-    var scx = sr.left + sr.width  / 2;
-    var scy = sr.top  + sr.height / 2;
-    var best  = null;
+    var sr = source.getBoundingClientRect();
+    var scx = sr.left + sr.width / 2;
+    var scy = sr.top + sr.height / 2;
+    var best = null;
     var bestScore = Infinity;
-
+    var threshold = 25;
     for (var i = 0; i < this.elements.length; i++) {
         var el = this.elements[i];
         if (el === source) continue;
         var r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
-        var cx = r.left + r.width  / 2;
-        var cy = r.top  + r.height / 2;
+        var cx = r.left + r.width / 2;
+        var cy = r.top + r.height / 2;
         var dx = cx - scx;
         var dy = cy - scy;
         var primary, secondary;
-
         switch (direction) {
             case 'left':
                 if (dx >= 0) continue;
@@ -248,18 +257,15 @@ SpatialNavigation.prototype._findBestCandidate = function (source, direction) {
                 primary = dy;
                 secondary = Math.abs(dx);
                 break;
-            default: continue;
+            default:
+                continue;
         }
-
-        // [تحسين خوارزمية التلفاز] تقليل وزن الثانوي + مكافأة التوافق
         var score = primary + secondary * 0.25;
-        var threshold = 25;
         if (direction === 'left' || direction === 'right') {
             if (Math.abs(scy - cy) < threshold) score *= 0.7;
         } else {
             if (Math.abs(scx - cx) < threshold) score *= 0.7;
         }
-
         if (score < bestScore) {
             bestScore = score;
             best = el;
@@ -315,13 +321,19 @@ SpatialNavigation.prototype._handleBack = function () {
 
 SpatialNavigation.prototype._addClass = function (el, cls) {
     if (!el) return;
-    if (el.classList) { el.classList.add(cls); return; }
+    if (el.classList) {
+        el.classList.add(cls);
+        return;
+    }
     if ((' ' + el.className + ' ').indexOf(' ' + cls + ' ') < 0) el.className += ' ' + cls;
 };
 
 SpatialNavigation.prototype._removeClass = function (el, cls) {
     if (!el) return;
-    if (el.classList) { el.classList.remove(cls); return; }
+    if (el.classList) {
+        el.classList.remove(cls);
+        return;
+    }
     el.className = (' ' + el.className + ' ').replace(' ' + cls + ' ', ' ').trim();
 };
 
@@ -336,8 +348,8 @@ SpatialNavigation.prototype.destroy = function () {
         this._keyupHandler = null;
     }
     if (this.currentElement) this._removeClass(this.currentElement, this.activeClass);
-    this.elements       = [];
-    this.currentIndex   = -1;
+    this.elements = [];
+    this.currentIndex = -1;
     this.currentElement = null;
-    this.isInitialized  = false;
+    this.isInitialized = false;
 };
