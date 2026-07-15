@@ -1,0 +1,9 @@
+# Dependency directories 
+node_modules/
+
+# Scraped data & SQL dumps 
+*.txt
+*.sql
+
+# Logs 
+npm-debug.log*
