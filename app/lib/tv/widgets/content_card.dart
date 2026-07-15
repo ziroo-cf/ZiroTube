@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import '../theme/app_theme.dart';
+import 'package:zirotube/core/theme/app_theme.dart';
 
 class ContentCard extends StatefulWidget {
   final String title;
@@ -165,7 +165,6 @@ class _LiveBadge extends StatelessWidget {
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Symbols.circle_rounded, size: 8, color: Colors.white),
           SizedBox(width: 4),
           Text(
             'مباشر',

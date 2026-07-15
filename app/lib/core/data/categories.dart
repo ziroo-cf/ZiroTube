@@ -27,11 +27,11 @@ extension ContentCategoryX on ContentCategory {
       case ContentCategory.live:
         return 'القنوات';
       case ContentCategory.kidsMovies:
-        return 'أفلام الأطفال';
+        return 'الأفلام';
       case ContentCategory.series:
-        return 'مسلسلات الأطفال';
+        return 'المسلسلات';
       case ContentCategory.translatedMovies:
-        return 'أفلام مترجمة';
+        return 'المترجمة';
     }
   }
 

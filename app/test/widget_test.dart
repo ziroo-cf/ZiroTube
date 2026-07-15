@@ -12,7 +12,7 @@ void main() {
   });
 
   testWidgets('App loads successfully test', (WidgetTester tester) async {
-    await tester.pumpWidget(const ZiroTubeApp());
+    await tester.pumpWidget(const ZiroTubeApp(isTV: false));
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }

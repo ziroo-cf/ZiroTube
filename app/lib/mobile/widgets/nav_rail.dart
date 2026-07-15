@@ -4,10 +4,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zirotube/core/data/categories.dart';
 import 'package:zirotube/core/theme/app_theme.dart';
 
-const double _kRailCollapsedWidth = 84;
-const double _kRailExpandedWidth = 260;
-const double _kIconZoneWidth = 56;
-const double _kLabelRevealThreshold = 170;
+const double _kRailWidth = 260.0;
+const double _kIconZoneWidth = 56.0;
 
 class NavRail extends StatefulWidget {
   final ContentCategory selected;
@@ -22,26 +20,15 @@ class NavRail extends StatefulWidget {
   });
 
   @override
-  State<NavRail> createState() => NavRailState();
+  State<NavRail> createState() => _NavRailState();
 }
 
-class NavRailState extends State<NavRail> {
-  final FocusNode _boundaryNode = FocusNode(
-    debugLabel: 'NavRailBoundary',
-    skipTraversal: true,
-    canRequestFocus: false,
-  );
-  late final Map<ContentCategory, FocusNode> _focusNodes = {
-    for (final c in kNavCategories) c: FocusNode(debugLabel: 'nav-${c.jsonKey}'),
-  };
-  bool _expanded = false;
-  bool _railHadFocus = false;
+class _NavRailState extends State<NavRail> {
   String _version = '';
 
   @override
   void initState() {
     super.initState();
-    FocusManager.instance.addListener(_handleGlobalFocusChange);
     _loadVersion();
   }
 
@@ -53,77 +40,34 @@ class NavRailState extends State<NavRail> {
     } catch (_) {}
   }
 
-  void _handleGlobalFocusChange() {
-    final hasFocus = _boundaryNode.hasFocus;
-
-    if (hasFocus != _expanded) {
-      setState(() => _expanded = hasFocus);
-    }
-
-    if (hasFocus && !_railHadFocus) {
-      final target = _focusNodes[widget.selected];
-      if (target != null && !target.hasFocus) {
-        target.requestFocus();
-      }
-    }
-    _railHadFocus = hasFocus;
-  }
-
-  void focusSelected(ContentCategory category) {
-    _focusNodes[category]?.requestFocus();
-  }
-
-  @override
-  void dispose() {
-    FocusManager.instance.removeListener(_handleGlobalFocusChange);
-    for (final node in _focusNodes.values) {
-      node.dispose();
-    }
-    _boundaryNode.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: AnimatedContainer(
-        duration: AppMotion.railExpand,
-        curve: AppMotion.railCurve,
-        width: _expanded ? _kRailExpandedWidth : _kRailCollapsedWidth,
+      child: Container(
+        width: _kRailWidth,
         decoration: const BoxDecoration(
           color: AppColors.bgTop,
           border: Border(
             left: BorderSide(color: Color(0xFF1B2025), width: 1),
           ),
         ),
-        child: Focus(
-          focusNode: _boundaryNode,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final bool showLabels = constraints.maxWidth > _kLabelRevealThreshold;
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: AppSpacing.lg),
-                  _Brand(showLabel: showLabels),
-                  const SizedBox(height: AppSpacing.lg),
-                  for (final category in kNavCategories)
-                    _NavItem(
-                      category: category,
-                      showLabel: showLabels,
-                      isSelected: category == widget.selected,
-                      focusNode: _focusNodes[category]!,
-                      count: widget.counts[category] ?? 0,
-                      onTap: () => widget.onSelect(category),
-                    ),
-                  const Spacer(),
-                  _VersionLabel(showLabel: showLabels, version: _version),
-                  const SizedBox(height: AppSpacing.md),
-                ],
-              );
-            },
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: AppSpacing.lg),
+            const _Brand(),
+            const SizedBox(height: AppSpacing.lg),
+            for (final category in kNavCategories)
+              _NavItem(
+                category: category,
+                isSelected: category == widget.selected,
+                count: widget.counts[category] ?? 0,
+                onTap: () => widget.onSelect(category),
+              ),
+            const Spacer(),
+            _VersionLabel(version: _version),
+            const SizedBox(height: AppSpacing.md),
+          ],
         ),
       ),
     );
@@ -131,8 +75,7 @@ class NavRailState extends State<NavRail> {
 }
 
 class _Brand extends StatelessWidget {
-  final bool showLabel;
-  const _Brand({required this.showLabel});
+  const _Brand();
 
   @override
   Widget build(BuildContext context) {
@@ -140,8 +83,7 @@ class _Brand extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
       child: Align(
         alignment: Alignment.center,
-        child: showLabel
-            ? const Text.rich(
+        child: const Text.rich(
           TextSpan(children: [
             TextSpan(text: 'Ziro', style: AppText.brand),
             TextSpan(
@@ -157,19 +99,70 @@ class _Brand extends StatelessWidget {
           ]),
           maxLines: 1,
           overflow: TextOverflow.clip,
-        )
-            : const Text.rich(
-          TextSpan(
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final ContentCategory category;
+  final bool isSelected;
+  final int count;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.category,
+    required this.isSelected,
+    required this.count,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: onTap,
+        child: Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.surfaceElevated : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
             children: [
-              TextSpan(text: 'Z', style: AppText.brand),
-              TextSpan(
-                text: 'T',
-                style: TextStyle(
-                  fontFamily: AppText.fontFamily,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.primary,
-                  height: 1.0,
+              SizedBox(
+                width: _kIconZoneWidth,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      category.icon,
+                      color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                      size: 26,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        category.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: isSelected ? AppText.navLabel : AppText.navLabelMuted,
+                      ),
+                    ),
+                    if (count > 0) ...[
+                      const SizedBox(width: AppSpacing.xs),
+                      _CountChip(count: count),
+                    ],
+                    const SizedBox(width: AppSpacing.xs),
+                  ],
                 ),
               ),
             ],
@@ -180,108 +173,25 @@ class _Brand extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
-  final ContentCategory category;
-  final bool showLabel;
-  final bool isSelected;
-  final FocusNode focusNode;
-  final int count;
-  final VoidCallback onTap;
-
-  const _NavItem({
-    required this.category,
-    required this.showLabel,
-    required this.isSelected,
-    required this.focusNode,
-    required this.count,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 4),
-      child: _NavItemFocusBuilder(
-        focusNode: focusNode,
-        onTap: onTap,
-        builder: (isFocused) {
-          final Color iconColor = isFocused
-              ? AppColors.bgBottom
-              : (isSelected ? AppColors.primary : AppColors.textSecondary);
-
-          return AnimatedContainer(
-            duration: AppMotion.railExpand,
-            curve: AppMotion.railCurve,
-            height: 52,
-            decoration: BoxDecoration(
-              color: isFocused
-                  ? AppColors.primary
-                  : (isSelected ? AppColors.surfaceElevated : Colors.transparent),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: _kIconZoneWidth,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(category.icon, color: iconColor, size: 26),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: !showLabel
-                      ? const SizedBox.shrink()
-                      : Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          category.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: isFocused
-                              ? AppText.navLabel.copyWith(color: AppColors.bgBottom)
-                              : (isSelected ? AppText.navLabel : AppText.navLabelMuted),
-                        ),
-                      ),
-                      if (count > 0) ...[
-                        const SizedBox(width: AppSpacing.xs),
-                        _CountChip(count: count, isFocused: isFocused),
-                      ],
-                      const SizedBox(width: AppSpacing.xs),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
 class _CountChip extends StatelessWidget {
   final int count;
-  final bool isFocused;
-  const _CountChip({required this.count, required this.isFocused});
+  const _CountChip({required this.count});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: isFocused ? AppColors.bgBottom.withValues(alpha: 0.15) : AppColors.surface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         '$count',
-        style: TextStyle(
+        style: const TextStyle(
           fontFamily: AppText.fontFamily,
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: isFocused ? AppColors.bgBottom : AppColors.textSecondary,
+          color: AppColors.textSecondary,
         ),
       ),
     );
@@ -289,9 +199,8 @@ class _CountChip extends StatelessWidget {
 }
 
 class _VersionLabel extends StatelessWidget {
-  final bool showLabel;
   final String version;
-  const _VersionLabel({required this.showLabel, required this.version});
+  const _VersionLabel({required this.version});
 
   @override
   Widget build(BuildContext context) {
@@ -301,7 +210,7 @@ class _VersionLabel extends StatelessWidget {
       child: Align(
         alignment: Alignment.center,
         child: Text(
-          showLabel ? 'الإصدار $version' : 'v$version',
+          'الإصدار $version',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -312,39 +221,6 @@ class _VersionLabel extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _NavItemFocusBuilder extends StatefulWidget {
-  final FocusNode focusNode;
-  final VoidCallback onTap;
-  final Widget Function(bool isFocused) builder;
-
-  const _NavItemFocusBuilder({
-    required this.focusNode,
-    required this.onTap,
-    required this.builder,
-  });
-
-  @override
-  State<_NavItemFocusBuilder> createState() => _NavItemFocusBuilderState();
-}
-
-class _NavItemFocusBuilderState extends State<_NavItemFocusBuilder> {
-  bool _isFocused = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      focusNode: widget.focusNode,
-      borderRadius: BorderRadius.circular(10),
-      focusColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      onFocusChange: (hasFocus) => setState(() => _isFocused = hasFocus),
-      onTap: widget.onTap,
-      child: widget.builder(_isFocused),
     );
   }
 }

@@ -16,52 +16,16 @@ class SeriesDetailScreen extends StatefulWidget {
   State<SeriesDetailScreen> createState() => _SeriesDetailScreenState();
 }
 
-class _SeriesDetailScreenState extends State<SeriesDetailScreen> with WidgetsBindingObserver {
+class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
   final SupabaseService _supabaseService = SupabaseService();
   bool _isLoading = true;
   List<EpisodeModel> _episodes = [];
   String? _lastPlayedEpisodeId;
-  final List<FocusNode> _episodeFocusNodes = [];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _loadEpisodes();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    for (final node in _episodeFocusNodes) {
-      node.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (mounted && ModalRoute.of(context)?.isCurrent == true) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _restoreFocus();
-        });
-      }
-    }
-  }
-
-  void _restoreFocus() {
-    if (_episodes.isEmpty) return;
-    int indexToFocus = 0;
-    if (_lastPlayedEpisodeId != null) {
-      final index = _episodes.indexWhere((e) => e.id == _lastPlayedEpisodeId);
-      if (index != -1) {
-        indexToFocus = index;
-      }
-    }
-    if (indexToFocus < _episodeFocusNodes.length) {
-      _episodeFocusNodes[indexToFocus].requestFocus();
-    }
   }
 
   Future<void> _loadEpisodes() async {
@@ -71,10 +35,6 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> with WidgetsBin
       setState(() {
         _episodes = episodes;
         _isLoading = false;
-        _episodeFocusNodes.clear();
-        for (int i = 0; i < episodes.length; i++) {
-          _episodeFocusNodes.add(FocusNode());
-        }
       });
     } catch (e) {
       if (!mounted) return;
@@ -89,7 +49,8 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> with WidgetsBin
     launchJustPlayer(
       context,
       videoUrl: episode.videoUrl,
-      title: 'الحلقة ${episode.episodeNumber}',
+      title: '${widget.series.title} الحلقة ${episode.episodeNumber}',
+      isTV: false,
     );
   }
 
@@ -132,8 +93,6 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> with WidgetsBin
                       return EpisodeTile(
                         key: ValueKey(_episodes[index].id),
                         episode: _episodes[index],
-                        autofocus: index == 0 && _lastPlayedEpisodeId == null,
-                        focusNode: _episodeFocusNodes[index],
                         onTap: () => _openPlayer(_episodes[index]),
                       );
                     },

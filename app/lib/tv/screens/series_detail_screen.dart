@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../models/model.dart';
-import '../services/supabase_service.dart';
-import '../theme/app_theme.dart';
+import 'package:zirotube/core/models/model.dart';
+import 'package:zirotube/core/services/supabase_service.dart';
+import 'package:zirotube/core/theme/app_theme.dart';
+import 'package:zirotube/core/utils/player_launcher.dart';
+
 import '../widgets/episode_tile.dart';
-import '../utils/player_launcher.dart';
 
 class SeriesDetailScreen extends StatefulWidget {
   final SeriesModel series;
@@ -89,6 +90,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> with WidgetsBin
       context,
       videoUrl: episode.videoUrl,
       title: 'الحلقة ${episode.episodeNumber}',
+      isTV: true,
     );
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import 'package:zirotube/core/theme/app_theme.dart';
 
 class ContentGrid<T> extends StatelessWidget {
   final List<T> items;

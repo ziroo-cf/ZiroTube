@@ -2,6 +2,9 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="true" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <queries>
+        <package android:name="com.brouken.player" />
+    </queries>
     <application
         android:label="zirotube"
         android:name="${applicationName}"

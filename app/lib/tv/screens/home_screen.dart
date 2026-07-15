@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../data/categories.dart';
-import '../models/model.dart';
-import '../screens/series_detail_screen.dart';
-import '../services/supabase_service.dart';
-import '../theme/app_theme.dart';
+import 'package:zirotube/core/data/categories.dart';
+import 'package:zirotube/core/models/model.dart';
+import 'package:zirotube/core/services/supabase_service.dart';
+import 'package:zirotube/core/theme/app_theme.dart';
+import 'package:zirotube/core/utils/player_launcher.dart';
+
 import '../widgets/content_card.dart';
 import '../widgets/content_grid.dart';
 import '../widgets/nav_rail.dart';
-import '../utils/player_launcher.dart';
+import 'series_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,7 +46,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Only refocus nav rail if we are on the home screen (no detail screens above)
       if (!Navigator.of(context).canPop()) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _navRailKey.currentState?.focusSelected(_selected);
@@ -181,6 +181,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             context,
             videoUrl: media.videoUrl,
             title: media.title,
+            isTV: true,
           );
         },
         autofocus: autofocus,

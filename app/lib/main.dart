@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
-import 'screens/home_screen.dart';
-import 'theme/app_theme.dart';
+import 'core/theme/app_theme.dart';
+import 'tv/screens/home_screen.dart' as tv;
+import 'mobile/screens/home_screen.dart' as mobile;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,11 +15,17 @@ void main() async {
     publishableKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cm9ldWhrbmtueHpqcGNyZ21lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MzQ4OTIsImV4cCI6MjA5OTAxMDg5Mn0.tR4F52BCbxs41UXbinuGHzKmJpEOdVfUWNwKwqqtroo',
   );
 
-  runApp(const ZiroTubeApp());
+  final deviceInfo = DeviceInfoPlugin();
+  final androidInfo = await deviceInfo.androidInfo;
+  final isTV = androidInfo.systemFeatures.contains('android.software.leanback');
+
+  runApp(ZiroTubeApp(isTV: isTV));
 }
 
 class ZiroTubeApp extends StatelessWidget {
-  const ZiroTubeApp({super.key});
+  final bool isTV;
+
+  const ZiroTubeApp({super.key, required this.isTV});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +40,7 @@ class ZiroTubeApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const HomeScreen(),
+      home: isTV ? const tv.HomeScreen() : const mobile.HomeScreen(),
     );
   }
 }

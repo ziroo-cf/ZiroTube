@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../data/categories.dart';
-import '../theme/app_theme.dart';
+import 'package:zirotube/core/data/categories.dart';
+import 'package:zirotube/core/theme/app_theme.dart';
 
 const double _kRailCollapsedWidth = 84;
 const double _kRailExpandedWidth = 260;

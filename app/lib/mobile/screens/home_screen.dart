@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:zirotube/core/data/categories.dart';
 import 'package:zirotube/core/models/model.dart';
@@ -9,7 +10,6 @@ import 'package:zirotube/core/utils/player_launcher.dart';
 
 import '../widgets/content_card.dart';
 import '../widgets/content_grid.dart';
-import '../widgets/nav_rail.dart';
 import 'series_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   bool _hasError = false;
   final Map<ContentCategory, List<MediaModel>> _content = {
@@ -27,32 +27,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   };
   List<SeriesModel> _series = [];
   ContentCategory _selected = ContentCategory.live;
-  final GlobalKey<NavRailState> _navRailKey = GlobalKey<NavRailState>();
   final SupabaseService _supabaseService = SupabaseService();
+  String _version = '';
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _loadContent();
+    _loadVersion();
   }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      // Only refocus nav rail if we are on the home screen (no detail screens above)
-      if (!Navigator.of(context).canPop()) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _navRailKey.currentState?.focusSelected(_selected);
-        });
-      }
-    }
+  Future<void> _loadVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      setState(() => _version = info.version);
+    } catch (_) {}
   }
 
   Future<void> _loadContent() async {
@@ -85,35 +75,42 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  int _getCurrentCount() {
+    if (_selected == ContentCategory.series) {
+      return _series.length;
+    }
+    return _content[_selected]?.length ?? 0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final counts = {
-      for (final c in kNavCategories)
-        c: c == ContentCategory.series ? _series.length : (_content[c]?.length ?? 0),
-    };
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.background),
         child: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Row(
-            children: [
-              Expanded(
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: _buildContent(),
-                ),
-              ),
-              NavRail(
-                key: _navRailKey,
-                selected: _selected,
-                counts: counts,
-                onSelect: (category) => setState(() => _selected = category),
-              ),
-            ],
-          ),
+          textDirection: TextDirection.rtl,
+          child: _buildContent(),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: kNavCategories.indexOf(_selected),
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: AppColors.bgTop,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+        onTap: (index) {
+          setState(() {
+            _selected = kNavCategories[index];
+          });
+        },
+        items: kNavCategories.map((category) {
+          return BottomNavigationBarItem(
+            icon: Icon(category.icon, size: 26),
+            label: category.label,
+          );
+        }).toList(),
       ),
     );
   }
@@ -149,12 +146,30 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     final isSeries = _selected == ContentCategory.series;
     final title = isSeries ? ContentCategory.series.label : _selected.label;
+    final count = _getCurrentCount();
+
+    final footer = _version.isNotEmpty
+        ? Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Text(
+        'الإصدار $_version',
+        style: const TextStyle(
+          fontFamily: AppText.fontFamily,
+          fontSize: 11,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textSecondary,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    )
+        : null;
+
     final child = isSeries
         ? ContentGrid<SeriesModel>(
       key: const PageStorageKey('series'),
       items: _series,
       pageStorageKey: const PageStorageKey('series'),
-      itemBuilder: (series, autofocus) => ContentCard(
+      itemBuilder: (series) => ContentCard(
         title: series.title,
         thumbnailUrl: series.thumbnailUrl ?? '',
         placeholderIcon: Symbols.video_library_rounded,
@@ -165,14 +180,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           );
         },
-        autofocus: autofocus,
       ),
+      footer: footer,
     )
         : ContentGrid<MediaModel>(
       key: PageStorageKey(_selected),
       items: _content[_selected] ?? const [],
       pageStorageKey: PageStorageKey(_selected),
-      itemBuilder: (media, autofocus) => ContentCard(
+      itemBuilder: (media) => ContentCard(
         title: media.title,
         thumbnailUrl: media.thumbnailUrl,
         placeholderIcon: media.category.icon,
@@ -182,21 +197,27 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             context,
             videoUrl: media.videoUrl,
             title: media.title,
+            isTV: false,
           );
         },
-        autofocus: autofocus,
       ),
+      footer: footer,
     );
 
-    return _ContentArea(title: title, child: child);
+    return _ContentArea(title: title, count: count, child: child);
   }
 }
 
 class _ContentArea extends StatelessWidget {
   final String title;
+  final int count;
   final Widget child;
 
-  const _ContentArea({required this.title, required this.child});
+  const _ContentArea({
+    required this.title,
+    required this.count,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +231,26 @@ class _ContentArea extends StatelessWidget {
             AppSpacing.lg,
             AppSpacing.sm,
           ),
-          child: Text(title, style: AppText.sectionTitle),
+          child: Row(
+            children: [
+              Text(title, style: AppText.sectionTitle),
+              const SizedBox(width: AppSpacing.sm),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$count',
+                  style: AppText.navLabel.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         Expanded(child: child),
       ],
