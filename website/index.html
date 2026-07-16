@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZiroTube</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="top-nav" dir="ltr">
+        <a href="#" class="nav-brand">Ziro<span class="highlight">Tube</span></a>
+        <button id="lang-switch" class="lang-toggle">English</button>
+    </nav>
+    <main class="hero-container">
+        <section class="content-text">
+            <h2 class="headline" data-i18n="downloadNow">حمل الآن</h2>
+            <div class="action-buttons">
+                <a class="primary-btn" id="btn-phone" href="https://github.com/ziroo-cf/zirotube/releases/latest/download/ZiroTube-mobile.apk" >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                    <span data-i18n="forPhone">للهاتف</span>
+                </a>
+                <a class="primary-btn" id="btn-tv" href="https://github.com/ziroo-cf/zirotube/releases/latest/download/ZiroTube-TV.apk">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                    <span data-i18n="forTv">للتلفاز</span>
+                </a>
+            </div>
+            <div class="card info-card">
+                <p class="text-body" data-i18n="tvDownloadInfo">يمكنك تحميله على التلفاز باستخدام كود Downloader : <span class="badge" dir="ltr">9290513</span></p>
+            </div>
+            <div class="card dependency-card">
+                <div class="icon-wrapper">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                </div>
+                <div class="dependency-details">
+                    <h3 class="text-title" data-i18n="requiresPlayer">يتطلب تطبيق Just Player</h3>
+                    <p class="text-body" data-i18n="playerDownloadInfo">حمل <a href="https://github.com/moneytoo/Player" target="_blank" class="text-link">Just Player</a> من <a href="https://play.google.com/store/apps/details?id=com.brouken.player&hl=ar" target="_blank" class="text-link">متجر التطبيقات</a> أو باستخدام كود Downloader : <span class="badge" dir="ltr">2747416</span></p>
+                </div>
+            </div>
+            <div class="features-wrapper">
+                <h3 class="text-title" data-i18n="featuresTitle">المميزات:</h3>
+                <ul class="features-list">
+                    <li data-i18n="feat1">قنوات بث مباشر</li>
+                    <li data-i18n="feat2">أفلام ومسلسلات مدبلجة ومترجمة مختارة بعناية</li>
+                    <li data-i18n="feat3">مفتوح المصدر</li>
+                    <li data-i18n="feat4">بدون إعلانات</li>
+                    <li data-i18n="feat5">موجه للأطفال بشكل شبه كامل</li>
+                </ul>
+            </div>
+            <a href="https://github.com/ziroo-cf/ZiroTube" target="_blank" class="github-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                <span data-i18n="viewSource">عرض كود المصدر</span>
+            </a>
+        </section>
+        <section class="content-visual" dir="ltr">
+            <div class="mockup-container" id="mockup-container">
+                <div class="ambient-glow"></div>
+                <div class="tv-mockup"><img src="assets/tv-screenshot.png" alt="tv-screenshot"></div>
+                <div class="phone-mockup"><img src="assets/phone-screenshot.png" alt="phone-screenshot"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
