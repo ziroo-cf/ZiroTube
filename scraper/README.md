@@ -1,44 +1,95 @@
-# Media Scraper
+````md
+# ZiroTube Media Scraper
 
-Scrapes title, video URL, poster, and banner from a list of URLs. Saves to `output.json` incrementally. Skips duplicates by title.
+A simple Node.js scraper built for the **ZiroTube** project.
 
-## Setup
+It automatically detects whether a page is a **movie** or a **series**, extracts the required media information, and generates SQL files ready to import into Supabase.
+
+The scraper is designed to work with:
+
+- https://cartoony.net/
+- https://carateen.tv/
+
+## Features
+
+- Automatic movie/series detection
+- Extracts HLS video URLs
+- Downloads posters and thumbnails
+- Generates Supabase SQL
+- Supports multi-episode series
+- Skips duplicate titles
+- Headless or visible browser mode
+
+## Requirements
+
+- Node.js 18+
+- npm
+
+## Installation
 
 ```bash
-npm install puppeteer
+npm install
 ```
 
 ## Usage
 
-Put one URL per line in `links.txt`, then:
+Run normally:
 
 ```bash
 node scraper.js
 ```
 
-**Flags**
+Run with a visible browser:
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--visible` | off | Show browser window |
-| `--delay=N` | 1500 | ms between requests |
-| `--timeout=N` | 30000 | ms per page |
+```bash
+node scraper.js --visible
+```
+
+Custom delay:
+
+```bash
+node scraper.js --delay=3000
+```
+
+Custom timeout:
+
+```bash
+node scraper.js --timeout=60000
+```
+
+## Input
+
+Create a `links.txt` file containing one URL per line.
+
+Example:
+
+```text
+https://cartoony.net/...
+https://carateen.tv/...
+```
+
+Lines starting with `#` are ignored.
 
 ## Output
 
-`output.json`:
-```json
-[
-  {
-    "id": 1,
-    "title": "...",
-    "video": "...",
-    "poster": "...",
-    "banner": "..."
-  }
-]
+The scraper generates an `output.sql` file containing SQL statements for:
+
+- `public.media`
+- `public.series`
+- `public.episodes`
+
+## Project Structure
+
+```
+.
+├── links.txt
+├── output.sql
+├── scraper.js
+├── package.json
+└── README.md
 ```
 
-- IDs auto-increment from the highest existing ID.
-- Lines starting with `#` in `links.txt` are ignored.
-- A failed URL is logged and skipped; the run continues.
+## License
+
+Part of the **ZiroTube** project.
+````
